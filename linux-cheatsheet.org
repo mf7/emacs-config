@@ -1,0 +1,39 @@
+* Linux
+** Search for string within file name match
+*** find . -name '*.java' -print0 | xargs -0 grep 'suffix'
+*** find . -regex ".*\.\(java\|vm\)" -print0 | xargs -0 grep -i 'fileCategorySimple'
+** diff 2 dirs
+*** diff -qr --exclude=".svn" brandworkz_v7_1_0 brandworkz_v7_0_3 | sort
+** Find files over a certain size
+*** find . -type f -size +5000k -exec ls -lh {} \;
+** Zip a dir
+     zip -9 -r search.zip search/
+** Apply chmod to just directories
+    find . -type d -exec chmod a+rwx {} \;
+** Find all files less than a size limit
+     find . -regex ".*.\(jpg\|jpeg\|gif\|bmp\)" -not -size +1k
+** Find files and pipe through ls
+    find . -size +1G -print | xargs ls -lh
+* Git
+** Search git commit messages
+*** git log --grep='Brandworkz-xxx'
+** List tags
+*** git tag -l
+** Checkout to specific tag
+*** git checkout tags/<tag_name>
+** Show all file modd'd in a commit
+*** git diff-tree --name-only -r debb991db5a02d9cff90033c7f539a71dc3356d2
+*** git show --name-only debb991db5a02d9cff90033c7f539a71dc3356d2
+** Show all files changed between dates
+*** git log -p master@{2016-02-01}..master@{2016-02-02} --name-only --pretty="format:" | sort | uniq
+** Show the changes in a commit
+*** git show 42c9a409fd7be55b919a8f4f8fb3c9a314e85408
+** Extract single file from a stash
+  git checkout stash@{0} -- front/src/main/java/brandworkz/controller/AlbumController.java
+** Get the last time git repo was pulled
+*** stat -c %yy .git/FETCH_HEAD
+* Gradle
+** Run tasks in a single class
+  gradle -Dtest.single=CategoryDAO test      (where CategoryDAO is the name of the class)
+** Exclude task
+*** gradle clean build -x test       (Excludes the test task from the build)
