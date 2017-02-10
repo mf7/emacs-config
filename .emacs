@@ -8,7 +8,7 @@
 
 ;;https://www.emacswiki.org/emacs/BuildTags
 ;;ctags -e -R /home/mark/brandworkz/brandworkzSOA
-(setq path-to-ctags "/home/mark/brandworkz/brandworkzSOA/TAGS")
+(setq path-to-ctags (concat em-dir "brandworkz/brandworkzSOA/TAGS"))
 
 (require 'package) ;; You might already have this line
 (add-to-list 'package-archives
@@ -120,14 +120,10 @@
 (global-set-key (kbd "C-x r C-x") 'rm-exchange-point-and-mark)
 (global-set-key (kbd "C-x r C-w") 'rm-kill-region)
 (global-set-key (kbd "C-x r M-w") 'rm-kill-ring-save)
-(autoload 'rm-set-mark "rect-mark"
-  "Set mark for rectangle." t)
-(autoload 'rm-exchange-point-and-mark "rect-mark"
-  "Exchange point and mark for rectangle." t)
-(autoload 'rm-kill-region "rect-mark"
-  "Kill a rectangular region and save it in the kill ring." t)
-(autoload 'rm-kill-ring-save "rect-mark"
-  "Copy a rectangular region to the kill ring." t)
+(autoload 'rm-set-mark "rect-mark" "Set mark for rectangle." t)
+(autoload 'rm-exchange-point-and-mark "rect-mark" "Exchange point and mark for rectangle." t)
+(autoload 'rm-kill-region "rect-mark" "Kill a rectangular region and save it in the kill ring." t)
+(autoload 'rm-kill-ring-save "rect-mark" "Copy a rectangular region to the kill ring." t)
 
 (setq desk_dir (concat em-dir ".emacs.d/desktop"))
 (setq desktop-dir desk_dir)
