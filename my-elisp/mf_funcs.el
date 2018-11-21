@@ -112,10 +112,10 @@ cursor as close to its previous position as possible."
   (interactive)
   (browse-url
    (concat
-    "http://www.google.com/search?ie=utf-8&oe=utf-8&q="
+    "https://duckduckgo.com/?q="
     (if mark-active
         (buffer-substring (region-beginning) (region-end))
-      (read-string "Google: ")))))
+      (read-string "DuckDuckGo: ")))))
 
 
 (defun cf-clean-tags (begin end)
@@ -229,8 +229,109 @@ by using nxml's indentation rules."
   "Runs the wget command"
   (shell-command (concat "wget --output-document=" (expand-file-name "~") "/tmp-wget " url-string) (get-buffer-create "foo")))
 
-(shell-command "pwd" (get-buffer-create "foo"))
+;;(shell-command "pwd" (get-buffer-create "foo"))
 
 
   
-(run-wget "www.google.com")
+;;(run-wget "www.google.com")
+
+
+(defun java-lookup ()
+  "Searches duckduckgo, and then picks the first result "
+  (interactive)
+  (browse-url
+   (concat
+    "https://duckduckgo.com/?q=! java javadoc "
+    (if mark-active
+        (buffer-substring (region-beginning) (region-end))
+      (read-string "DuckDuckGo: ")))))
+
+(defun aws-lookup ()
+  "Searches aws for the server"
+  (interactive)
+  (browse-url
+   (concat
+    "https://eu-west-1.console.aws.amazon.com/ec2/v2/home?region="
+	(read-string "AWS region: " "eu-west-1" nil '("eu-west-1" "us-east-1"))
+	"#Instances:search="
+    (if mark-active
+        (buffer-substring (region-beginning) (region-end))
+      (read-string "AWS Instance: "))
+	";sort=tag:Name")))
+
+(defun youtube-lookup ()
+  "Searches youtube for the given text"
+  (interactive)
+    (browse-url
+   (concat
+    "https://www.youtube.com/results?search_query="
+    (if mark-active
+        (buffer-substring (region-beginning) (region-end))
+      (read-string "Search: ")))))
+
+
+;; Calvin and Hobbes modules
+(defun kill-if-buffer-exists (bufname)
+  (when (get-buffer bufname)
+	(kill-buffer bufname)))
+
+(defun get-calvin ()
+  "Fetch the most recent Calvin image and show it in the buffer."
+  (interactive)
+  (save-excursion
+	(let ((cmd "/usr/bin/wget -q -P /tmp/calvin http://calvinhobbesdaily.tumblr.com/rss > /dev/null 2>&1"))
+	  (shell-command "rm -rf /tmp/calvin")
+	  (kill-if-buffer-exists "rss")
+	  (kill-if-buffer-exists "*calvin*")
+	  (shell-command cmd)
+	  (find-file "/tmp/calvin/rss")
+	  (goto-char (point-min))
+	  (when (search-forward-regexp "img src=\\\"\\\(.+?\\\)\\\"" (point-max) t 1)
+		(message "%s" (match-string 1))
+		(shell-command (format "/usr/bin/wget -q -P /tmp/calvin %s > /dev/null 2>&1" (match-string 1)))
+		(switch-to-buffer (get-buffer-create "*calvin*"))
+		(setq cmdStr (concat "/usr/bin/convert -scale 100% -quality 100% " (car (directory-files "/tmp/calvin" t "gif")) " " (file-name-sans-extension(car (directory-files "/tmp/calvin" t "gif"))) "-c.gif"))
+		(shell-command cmdStr)
+		(insert-image (create-image (car (directory-files "/tmp/calvin" t "gif"))))
+		(kill-if-buffer-exists "rss")
+		(kill-if-buffer-exists "*Shell Command Output*")))))
+
+
+(defun run-checkstyle ()
+  ""
+  (interactive)
+  (let ((cmd (concat "java -jar /home/mark/progs/checkstyle-8.12-all.jar -c /home/mark/brandworkz/brandworkzSOA/config/checkstyle.xml " (buffer-file-name (get-buffer (current-buffer))))))
+    (message cmd)
+    (switch-to-buffer-other-window (get-buffer-create "*checkstyle-output*"))
+    (shell-command cmd (get-buffer "*checkstyle-output*"))))
+
+
+
+(defvar ffap-file-at-point-line-number nil
+  "Variable to hold line number from the last `ffap-file-at-point' call.")
+
+(defadvice ffap-file-at-point (after ffap-store-line-number activate)
+  "Search `ffap-string-at-point' for a line number pattern and
+save it in `ffap-file-at-point-line-number' variable."
+  (let* ((string (ffap-string-at-point)) ;; string/name definition copied from `ffap-string-at-point'
+         (name
+          (or (condition-case nil
+                  (and (not (string-match "/" string))
+                       (substitute-in-file-name string))
+                (error nil))
+              string))
+         (line-number-string 
+          (and (string-match ":[0-9]+" name)
+               (substring name (1+ (match-beginning 0)) (match-end 0))))
+         (line-number
+          (and line-number-string
+               (string-to-number line-number-string))))
+    (if (and line-number (> line-number 0)) 
+        (setq ffap-file-at-point-line-number line-number)
+      (setq ffap-file-at-point-line-number nil))))
+
+(defadvice find-file-at-point (after ffap-goto-line-number activate)
+  "If `ffap-file-at-point-line-number' is non-nil goto this line."
+  (when ffap-file-at-point-line-number
+    (goto-line ffap-file-at-point-line-number)
+    (setq ffap-file-at-point-line-number nil)))

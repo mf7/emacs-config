@@ -41,3 +41,18 @@
   )
 
 
+(defun debug-assetservice ()
+  ""
+  (interactive)
+  (let ((shell-name "*debug-assetservice-process*"))
+    (shell shell-name)
+    (let (proc (get-process shell-name))
+      (process-send-string  proc "cd ~/brandworkz/brandworkzSOA/assetservice\n")
+      (process-send-string  proc "export SERVICE_PORT=64001 && source ../version.sh && source ../amazon-hosts-local.sh && java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8000,suspend=n -jar build/libs/assetservice-1.3.jar\n")
+      )
+    (sleep-for 3)
+    (with-current-buffer (get-buffer "*debug-assetservice-process*") 
+      (jdb "-sourcepath:~/brandworkz/brandworkzSOS/assetservice/src/main/java/ -attach 8000")
+      )
+  )
+)

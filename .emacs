@@ -1,4 +1,4 @@
-;;(expand-file-name "~")
+;(expand-file-name "~")
 
 (setq em-dir "~/")
 
@@ -20,6 +20,14 @@
 
 (global-set-key (kbd "TAB") 'self-insert-command)
 (setq default-tab-width 4)
+(setq c-basic-offset 4)
+(custom-set-variables
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ '(tab-stop-list (quote (4 8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80 84 88 92 96 100 104 108 112 116 120))))
+(setq-default indent-tabs-mode nil)
 
 ;;(transient-mark-mode nil)
 (set-fill-column 100)
@@ -158,6 +166,7 @@
 ;;(require 'gnus-load)
 
 ;;(global-set-key (kbd "C-x C-b") 'ibuffer)
+(defalias 'list-buffers 'ibuffer)
 
 (require 'jira)
 
@@ -331,9 +340,15 @@
  '(custom-enabled-themes (quote (cyberpunk)))
  '(custom-safe-themes
    (quote
-	("38e64ea9b3a5e512ae9547063ee491c20bd717fe59d9c12219a0b1050b439cdd" default)))
+    ("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" "9fe1540491fcf692b8c639a3abacd32b29233bc4cb834a12a0fd1e01cbd0a128" "5cd0afd0ca01648e1fff95a7a7f8abec925bd654915153fb39ee8e72a8b56a1f" "2a739405edf418b8581dcd176aaf695d319f99e3488224a3c495cb0f9fd814e3" "748d0e2ffdaf95015a539dcc95ab888283284ad7b076963760422cbe5e21903a" "ace9f12e0c00f983068910d9025eefeb5ea7a711e774ee8bb2af5f7376018ad2" "d6922c974e8a78378eacb01414183ce32bc8dbf2de78aabcc6ad8172547cb074" "38e64ea9b3a5e512ae9547063ee491c20bd717fe59d9c12219a0b1050b439cdd" default)))
  '(display-time-mode t)
- '(helm-mode t)
+ '(gradle-executable-path
+   "export SERVICE_PORT=$(shuf -i 64000-65000 -n 1) && source ../hosts.sh && source ../version.sh && /usr/bin/gradle")
+ '(gradle-mode t)
+ '(jdee-global-classpath nil)
+ '(jdee-server-dir "~/emacs/jdee-server/target")
+ '(jira-url "http://projects.brandworkz.com/rpc/xmlrpc")
+ '(meghanada-gradle-version 4\.0\.1)
  '(size-indication-mode t)
  '(tool-bar-mode nil))
 (custom-set-faces
@@ -381,6 +396,8 @@
  (setq ring-bell-function 'ignore)
 
 (global-set-key (kbd "C-c m c") 'mc/edit-lines)
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 
 ;;(add-to-list 'load-path "~/emacs/emacs-eclim")
 
@@ -414,17 +431,65 @@
 
 (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
 
-(require 'helm-config)
-(helm-mode 1)
-(global-set-key (kbd "M-x") 'helm-M-x)
-;;(global-set-key (kbd "C-x b") 'helm-buffers-list)
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
-(global-set-key (kbd "M-y") 'helm-show-kill-ring)
-(global-set-key (kbd "C-x b") 'helm-mini)
-(setq helm-semantic-fuzzy-match t
-      helm-imenu-fuzzy-match    t)
-(helm-autoresize-mode t)
+;;(require 'helm-config)
+;;(helm-mode 1)
+;;(global-set-key (kbd "M-x") 'helm-M-x)
+;;;;(global-set-key (kbd "C-x b") 'helm-buffers-list)
+;;(global-set-key (kbd "C-x C-f") 'helm-find-files)
+;;(global-set-key (kbd "M-y") 'helm-show-kill-ring)
+;;(global-set-key (kbd "C-x b") 'helm-mini)
+;;(setq helm-semantic-fuzzy-match t
+;;      helm-imenu-fuzzy-match    t)
+;;(helm-autoresize-mode t)
 
 (global-set-key (kbd "C-<f1>") 'other-frame)
 
 (set-default-font "Inconsolata-8")
+
+(setq projectile-enable-caching t)
+(setq projectile-completion-system 'ivy)
+(ivy-mode 1)
+(setq ivy-use-virtual-buffers t)
+;;(global-set-key "\C-s" 'swiper)
+;;(global-set-key "\C-s" 'isearch-forward)
+
+
+(global-set-key (kbd "<XF86Favorites>") 'magit-status)
+(global-set-key (kbd "<XF86HomePage>") 'ibuffer)
+(global-set-key (kbd "M-g g") 'avy-goto-line)
+(global-set-key (kbd "M-p") 'ace-window)
+(global-set-key "\C-x\C-m" 'execute-extended-command)
+(global-set-key "\C-c\C-m" 'execute-extended-command)
+
+(global-set-key "\C-w" 'backward-kill-word)
+(global-set-key "\C-c\C-k" 'kill-region)
+(global-set-key "\C-x\C-k" 'kill-region)
+
+(global-set-key (kbd "C-,") 'origami-toggle-node)
+
+
+(load "~/.emacs.d/auto-complete-20170124.1845/auto-complete.el")
+(ac-config-default)
+(setq ac-use-menu-map t)
+(define-key ac-menu-map "\C-n" 'ac-next)
+(define-key ac-menu-map "\C-p" 'ac-previous)
+
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+
+(global-set-key (kbd "<XF86Launch5>") 'gradle-build)
+(global-set-key (kbd "<XF86Launch6>") 'gradle-test)
+(global-set-key (kbd "<XF86Launch7>") 'gradle-tests)
+(global-set-key (kbd "<XF86Launch8>") 'gradle-publishtomavenlocal)
+
+(setq jde-project-file-version 1.0)
+
+
+;(add-to-list 'custom-theme-load-path "~/emacs/site-lisp/")
+;(load-theme 'color-theme-chocolate-rain)
+
+(add-hook 'prog-mode-hook 'subword-mode)
+
+(require 'ergoemacs-status)
+(ergoemacs-status-mode)  
+
+;(dumb-jump-mode)
