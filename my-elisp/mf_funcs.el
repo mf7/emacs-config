@@ -69,6 +69,32 @@ cursor as close to its previous position as possible."
    "\355<p>\C-e</p>")
 
 
+(defun to-snake-case(beg end)
+  (interactive "r")
+  (save-excursion
+    (save-restriction
+      (narrow-to-region beg end)
+      (goto-char beg)
+      (let ((case-fold-search nil))
+        (while (re-search-forward "\\([A-Z]\\)" nil t)
+          (replace-match
+           (concat "_" (downcase (match-string 0)))
+           )
+          )
+        1))))
+
+(defun to-camel-case(beg end)
+  (interactive "r")
+  (goto-char beg)
+  (save-excursion
+      (while (re-search-forward "_\\([a-z]\\)" nil t)
+        (replace-match (upcase (match-string 1)) 1)
+)))
+      
+
+
+
+
 (defun paragraph-region ()
 	"Replaces funny chars in text that is going to end up as HTML"
 	(interactive)
@@ -107,6 +133,44 @@ cursor as close to its previous position as possible."
 	       (replace-match "&rsquo;"))
 )
 
+(defun unreplace-special-chars-text ()
+	"Replaces funny chars in text that is going to end up as HTML"
+	(interactive)
+	(goto-char (point-min))
+	(while (re-search-forward "&amp;" nil t)
+	       (replace-match "&"))
+	(goto-char (point-min))
+	(while (re-search-forward "&rsquo;" nil t)
+	       (replace-match "'"))
+	(goto-char (point-min))
+	(while (re-search-forward "&lsquo;" nil t)
+	       (replace-match "'"))
+	(goto-char (point-min))
+	(while (re-search-forward "&pound;" nil t)
+	       (replace-match "£"))
+	(goto-char (point-min))
+	(while (re-search-forward "&ldquo;" nil t)
+	       (replace-match "\""))
+	(goto-char (point-min))
+	(while (re-search-forward "&rdquo;" nil t)
+	       (replace-match "\""))
+	(goto-char (point-min))
+	(while (re-search-forward "&rsquo;" nil t)
+	  (replace-match "'"))
+        (goto-char (point-min))
+	(while (re-search-forward "&nbsp;" nil t)
+	  (replace-match " "))
+        (goto-char (point-min))
+	(while (re-search-forward "&iacute;" nil t)
+	  (replace-match "i"))
+        (goto-char (point-min))
+	(while (re-search-forward "&ndash;" nil t)
+	  (replace-match "-"))
+        (goto-char (point-min))
+	(while (re-search-forward "&mdash;" nil t)
+	  (replace-match "-"))
+)
+
 (defun prelude-google ()
   "Googles a query or region if any."
   (interactive)
@@ -139,6 +203,13 @@ cursor as close to its previous position as possible."
     (interactive);; "Prompt\n shell name:")
     (let ((shell-name (read-string "shell name: " nil)))
     (shell (concat "*" shell-name "*"))))
+
+(defun create-ansi-shell ()
+    "creates a shell with a given name"
+    (interactive);; "Prompt\n shell name:")
+    (let ((shell-name (read-string "shell name: " nil)))
+    (ansi-term "/bin/bash" (concat "*" shell-name "*"))))
+
 
 (defun bf-pretty-print-xml-region (begin end)
   "Pretty format XML markup in region. You need to have nxml-mode
@@ -196,6 +267,7 @@ by using nxml's indentation rules."
 )
 
 
+(setq richard-file "~/emacs/poor-richard.gz")
 
 (defun poor-richard ()
   "Echos a line from the poor richard file...for a gentleman's improvement"
@@ -215,6 +287,8 @@ by using nxml's indentation rules."
                             (buffer-local-value 'dired-directory buf))
            (string-match qualifier it))))
 
+
+(setq http-codes-file "~/emacs/http_status_codes.txt")
 
 (defalias 'http 'get-http-code-description)
 (defun get-http-code-description (status-code)
@@ -236,15 +310,57 @@ by using nxml's indentation rules."
 ;;(run-wget "www.google.com")
 
 
+;;(defun java-lookup ()
+;;  "Searches duckduckgo, and then picks the first result "
+;;  (interactive)
+;;  (browse-url
+;;   (concat
+;;    "https://duckduckgo.com/?q=! java javadoc "
+;;    (if mark-active
+;;        (buffer-substring (region-beginning) (region-end))
+;;      (read-string "DuckDuckGo: ")))))
+
 (defun java-lookup ()
   "Searches duckduckgo, and then picks the first result "
   (interactive)
-  (browse-url
+  (eww-browse-url
    (concat
-    "https://duckduckgo.com/?q=! java javadoc "
+    "https://duckduckgo.com/?q=! java 8 javadoc "
     (if mark-active
         (buffer-substring (region-beginning) (region-end))
       (read-string "DuckDuckGo: ")))))
+
+(defun jargon-lookup ()
+  "Searches duckduckgo, and then picks the first result "
+  (interactive)
+  (eww-browse-url
+   (concat
+    "http://catb.org/jargon/html/"
+    (progn
+      (setq jargon
+            (if mark-active
+        	(buffer-substring (region-beginning) (region-end))
+              (read-string "Jargon: ")))
+      (concat (upcase (substring jargon 0 1)) "/" jargon ".html")
+      ))))
+
+
+(defun libgen-lookup ()
+  "Searches libgen.io for the given text"
+  (interactive)
+  (eww-browse-url
+   (concat
+    "http://libgen.is/search.php?req="
+    (progn
+      (setq text
+            (if mark-active
+        	(buffer-substring (region-beginning) (region-end))
+              (read-string "Book name: ")))
+      
+      )
+    "&lg_topic=libgen&open=0&view=simple&res=25&phrase=1&column=def")))
+
+
 
 (defun aws-lookup ()
   "Searches aws for the server"
@@ -268,6 +384,26 @@ by using nxml's indentation rules."
     (if mark-active
         (buffer-substring (region-beginning) (region-end))
       (read-string "Search: ")))))
+
+(defun web-lookup ()
+  "Searches duckduckgo for the given text"
+  (interactive)
+    (browse-url
+   (concat
+    "https://duckduckgo.com/?q="
+    (if mark-active
+        (buffer-substring (region-beginning) (region-end))
+      (read-string "Search: ")))))
+
+(defun aws-terraform-lookup ()
+  "Loads the aws terraform documentation for the given text"
+  (interactive)
+    (eww-browse-url
+   (concat
+    "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/"
+    (if mark-active
+        (buffer-substring (region-beginning) (region-end))
+      (read-string "Item: ")))))
 
 
 ;; Calvin and Hobbes modules
@@ -300,38 +436,21 @@ by using nxml's indentation rules."
 (defun run-checkstyle ()
   ""
   (interactive)
-  (let ((cmd (concat "java -jar /home/mark/progs/checkstyle-8.12-all.jar -c /home/mark/brandworkz/brandworkzSOA/config/checkstyle.xml " (buffer-file-name (get-buffer (current-buffer))))))
+  (let ((cmd (concat "java -jar /home/mf7/progs/checkstyle-8.17-all.jar -c /home/mf7/brandworkz/brandworkzSOA/config/checkstyle.xml " (buffer-file-name (get-buffer (current-buffer))))))
     (message cmd)
     (switch-to-buffer-other-window (get-buffer-create "*checkstyle-output*"))
-    (shell-command cmd (get-buffer "*checkstyle-output*"))))
+    (shell-command cmd (get-buffer "*checkstyle-output*"))
+    (while
+        (search-forward-regexp "/.*\\.java" (point-max))
+      (make-button (match-beginning 0) (match-end 0) 'action 'run-cs-button-action))))
 
 
-
-(defvar ffap-file-at-point-line-number nil
-  "Variable to hold line number from the last `ffap-file-at-point' call.")
-
-(defadvice ffap-file-at-point (after ffap-store-line-number activate)
-  "Search `ffap-string-at-point' for a line number pattern and
-save it in `ffap-file-at-point-line-number' variable."
-  (let* ((string (ffap-string-at-point)) ;; string/name definition copied from `ffap-string-at-point'
-         (name
-          (or (condition-case nil
-                  (and (not (string-match "/" string))
-                       (substitute-in-file-name string))
-                (error nil))
-              string))
-         (line-number-string 
-          (and (string-match ":[0-9]+" name)
-               (substring name (1+ (match-beginning 0)) (match-end 0))))
-         (line-number
-          (and line-number-string
-               (string-to-number line-number-string))))
-    (if (and line-number (> line-number 0)) 
-        (setq ffap-file-at-point-line-number line-number)
-      (setq ffap-file-at-point-line-number nil))))
-
-(defadvice find-file-at-point (after ffap-goto-line-number activate)
-  "If `ffap-file-at-point-line-number' is non-nil goto this line."
-  (when ffap-file-at-point-line-number
-    (goto-line ffap-file-at-point-line-number)
-    (setq ffap-file-at-point-line-number nil)))
+(defun arrayify (start end quote)
+    "Turn strings on newlines into a QUOTEd, comma-separated one-liner."
+    (interactive "r\nMQuote: ")
+    (let ((insertion
+           (mapconcat
+            (lambda (x) (format "%s%s%s" quote x quote))
+            (split-string (buffer-substring start end)) ", ")))
+      (delete-region start end)
+      (insert insertion)))
